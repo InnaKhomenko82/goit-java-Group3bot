@@ -1,4 +1,4 @@
-package notification;
+/*package notification;
 
 import googleSheets.GoogleApiSheets;
 import lombok.SneakyThrows;
@@ -30,4 +30,4 @@ public class NotificationTimer {
             }
         }, day * MILLISECONDS_TO_DAY);
     }
-}
+}*/

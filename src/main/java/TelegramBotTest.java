@@ -1,26 +1,29 @@
-import googleSheets.GetAndSet;
-import googleSheets.GoogleApiSheets;
-import googleSheets.WriteToJson;
-import notification.NotificationTimer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import registration.Registration;
 import telegram.TelegramApiController;
+import telegram.TelegramController;
+import telegram.TelegramControllerImpl;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 public class TelegramBotTest {
-    public static void main(String[] args) throws TelegramApiException, GeneralSecurityException, IOException {
+    public static void main(String[] args) throws TelegramApiException {
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-        telegramBotsApi.registerBot(new Registration());
+        telegramBotsApi.registerBot(new TelegramControllerImpl() {
+        });
 
+
+
+        //telegramBotsApi.registerBot(new Registration());
+        //telegramBotsApi.registerBot(new StudyBlock());
 
         //telegramBotsApi.registerBot(new TelegramApiController());
 
         //Метод парсит гуглТаблицу и записывает в АрейЛисты
-        GoogleApiSheets.mainGoogle();
+        //GoogleApiSheets.mainGoogle();
 
         //NotificationTimer.start();
 
