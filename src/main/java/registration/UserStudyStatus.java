@@ -1,7 +1,6 @@
 package registration;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.apache.commons.validator.routines.EmailValidator;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -12,16 +11,19 @@ import java.util.stream.Collectors;
 //статический утилитный класс. Единственный публичный метод получает на вход e-mail (для идентификации пользователя в базе) и новые данные по номеру и названию главы.
 
 public class UserStudyStatus {
+    private static final String FILE_NAME = "UserBase/user.json";
     private static ArrayList<User> tempUserBase = new ArrayList<>();
 
-    public static void changeUserStudyStatus(String email, int currentQuestion, String currentBlock) {
-        getUsersFromBase();
+    public static void changeUserStudyStatus(long chatId, int currentQuestion, String currentBlock) {
+        if (tempUserBase.isEmpty()) {
+            getUsersFromBase();
+        }
 
-        if (isEmailValid(email) && !isNoUserCoincidence(email)) {
+        if (isUserExists(chatId)) {
             int index = 0;
 
             for (int i = 0; i < tempUserBase.size(); i++) {
-                if (tempUserBase.get(i).getEmail().equals(email)) {
+                if (tempUserBase.get(i).getChatId() == chatId) {
                     index = i;
                 }
             }
@@ -31,25 +33,19 @@ public class UserStudyStatus {
             putUsersToBase();
         }
         else {
-            System.out.println("Ошибка e-mail");
+            //System.out.println("Пользователь не найден в базе");
         }
     }
 
-    private static boolean isEmailValid(String email) { //проверка валидности e-mail
-        EmailValidator eValidator = EmailValidator.getInstance();
-        return eValidator.isValid(email);
-    }
-
-    private static boolean isNoUserCoincidence(String email) { //проверка отсутствия совпадения переданного e-mail с базой пользователей. Возвращает true при отсутствии совпадений
+    private static boolean isUserExists(long chatId) { //проверка переданного chatId в базе пользователей. Возвращает true при совпадении
         long coincidence = tempUserBase.stream()
-                .filter(user -> user.getEmail().equals(email))
+                .filter(user -> user.getChatId() == chatId)
                 .count();
-        System.out.println(coincidence);
-        return coincidence == 0;
+        return coincidence != 0;
     }
 
     private static void getUsersFromBase() { //получение пользователей из файла-базы во временное хранилище
-        File file = new File("users.json");
+        File file = new File(FILE_NAME);
 
         try (BufferedReader toRead = new BufferedReader(new FileReader(file))) {
             tempUserBase.addAll(Arrays.asList(new Gson().fromJson(toRead.lines().collect(Collectors.joining()), User[].class)));
@@ -60,7 +56,7 @@ public class UserStudyStatus {
 
     private static void putUsersToBase() { //перезапись базы с измененным пользователем
         Gson json = new GsonBuilder().setPrettyPrinting().create();
-        File file = new File("users.json");
+        File file = new File(FILE_NAME);
 
         try (BufferedWriter toWrite = new BufferedWriter(new FileWriter(file))) {
             List<String> jsonArr = tempUserBase.stream()
@@ -71,5 +67,7 @@ public class UserStudyStatus {
         catch (IOException e) {
             System.out.println(e.getMessage());
         }
+
+        tempUserBase.clear();
     }
 }

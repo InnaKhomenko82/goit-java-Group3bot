@@ -139,6 +139,8 @@ public class Registration {
                 User user = new User();
                 user.setEmail(email);
                 user.setChatId(chatId);
+                user.setCurrentQuestion(0);
+                user.setCurrentBlock("");
                 tempUser.put(chatId, user);
                 requestBase.put(chatId, GROUP_NAME_REQUEST);
                 sendText(chatId, "Укажи название своей группы", 0, telegramControoler);
@@ -195,6 +197,7 @@ public class Registration {
                     .build()
             );
             write(DESTINATION, tempUserBase);
+            tempUserBase.clear();
         }
         else {
             try (BufferedReader toRead = new BufferedReader(new FileReader(file))) {
@@ -212,6 +215,10 @@ public class Registration {
         }
     }
     private void putUsersToBase(long chatId, HashMap<Long, User> tempUser) { //перезапись файла-хранилища с новым пользователем
+        if (tempUserBase.isEmpty()) {
+            getUsersFromBase();
+        }
+
         tempUserBase.add(tempUser.get(chatId));
         Gson json = new GsonBuilder().create();
         File file = new File(DESTINATION);
@@ -224,13 +231,17 @@ public class Registration {
         catch (IOException e) {
             System.out.println(e.getMessage());
         }
+        tempUserBase.clear();
     }
     private boolean isEmailValid(String email) { //проверка валидности e-mail
         EmailValidator eValidator = EmailValidator.getInstance();
         return eValidator.isValid(email);
     }
     private boolean isNoUserCoincidence (String email) { //проверка отсутствия совпадения переданного e-mail с базой пользователей. Возвращает true при отсутствии совпадений
-        getUsersFromBase();
+        if (tempUserBase.isEmpty()) {
+            getUsersFromBase();
+        }
+
         long coincidence = tempUserBase.stream()
                 .filter(user -> user.getEmail().equals(email))
                 .count();

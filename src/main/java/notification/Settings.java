@@ -2,13 +2,16 @@ package notification;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import telegram.TelegramController;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +24,7 @@ public class Settings {
                     "Тогда выбери удобное время для ежедневных оповещений:";
             sendText(chatId, messageText, 1, telegramController);
         }
+
     }
     private void sendText(long chatId, String messageText, int isKeyboard, TelegramController telegramController) { //отправка сообщения пользователю
         SendMessage sendMessageRequest = new SendMessage();
@@ -31,9 +35,22 @@ public class Settings {
                 sendMessageRequest.setReplyMarkup(createNotificationTimeKeyboard());
                 break;
             case 2:
-                sendMessageRequest.setReplyMarkup(createNotificationTimeKeyboard());
+                sendMessageRequest.setReplyMarkup(createNotificationYesNoKeyboard());
         }
         telegramController.sendMethod(sendMessageRequest);
+    }
+
+    private ReplyKeyboard createNotificationYesNoKeyboard() {
+        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
+        keyboard.setKeyboard(
+                Collections.singletonList(
+                        Arrays.asList(
+                                InlineKeyboardButton.builder().text("\uD83D\uDC4D Да").callbackData("yes").build(),
+                                InlineKeyboardButton.builder().text("\uD83D\uDE45 Нет").callbackData("no").build()
+                        )
+                )
+        );
+        return keyboard;
     }
 
     private ReplyKeyboard createNotificationTimeKeyboard(){
