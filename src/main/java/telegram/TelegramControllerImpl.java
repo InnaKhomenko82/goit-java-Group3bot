@@ -40,15 +40,22 @@ public abstract class TelegramControllerImpl extends TelegramLongPollingBot impl
         if (update.hasMessage() && update.getMessage().getText().startsWith("/start")) {
             registration.handleTextUpdate(update, this);
         }
-        else if (update.hasMessage() && update.getMessage().hasText()) {
+        else if (update.hasMessage() && update.getMessage().hasText() && !update.getMessage().getText().startsWith("Раздел ")) {
             registration.handleTextUpdate(update, this);
         }
         if (update.hasCallbackQuery()) {
             registration.handleCallbackQuery(update, this);
         }
 
+        if (update.hasMessage() && update.getMessage().getText().equals("Раздел Java")) {
+            System.out.println("Текстовое сообщение " + update.getMessage().getText());
+            studyBlock.handleTextUpdate(update, this);
+        }
+
         if (update.hasCallbackQuery() && update.getCallbackQuery().getData().equals("Go")) {
             studyBlock.handleTextUpdate(update, this);
         }
+
+
     }
 }
