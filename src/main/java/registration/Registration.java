@@ -19,8 +19,6 @@ public class Registration {
     private HashMap<Long, User> tempUser = new HashMap<>();
     private ArrayList<User> tempUserBase = new ArrayList<>();
 
-    private static final String ENTER_REQUEST = "Enter";
-    private static final String REGISTRATION_REQUEST = "Registration";
     private static final String DESTINATION = "UserBase/user.json";
     private static final String GROUP_NAME_REQUEST = "Group";
     private static final String USER_NAME_REQUEST = "Name";
@@ -35,10 +33,10 @@ public class Registration {
         else {
             String lastRequest = requestBase.get(chatId);
             switch (lastRequest) {
-                case ENTER_REQUEST:
+                case "Enter":
                     enterRequest(update, telegramController);
                     break;
-                case REGISTRATION_REQUEST:
+                case "Registration":
                     emailRegistrar(update, telegramController);
                     break;
                 case GROUP_NAME_REQUEST:
@@ -58,19 +56,18 @@ public class Registration {
         String callbackQuery = update.getCallbackQuery().getData();
 
         switch (callbackQuery) {
-            case REGISTRATION_REQUEST:
-                requestBase.put(chatId, REGISTRATION_REQUEST);
+            case "Registration":
+                requestBase.put(chatId, "Registration");
                 sendText(chatId, "Регистрирую новичка))\nУкажи e-mail, по которому я смогу узнавать тебя", 0, telegramController);
                 break;
-            case ENTER_REQUEST:
-                requestBase.put(chatId, ENTER_REQUEST);
+            case "Enter":
+                requestBase.put(chatId, "Enter");
                 sendText(chatId, "Введи адрес электронной почты", 0, telegramController);
                 break;
-            case STUDY_START_REQUEST:
+            case "Go":
                 sendText(chatId, "Гоу учиться! Я создал!", 0, telegramController);
-                System.out.println(update.getCallbackQuery().getData());
+                //System.out.println(update.getCallbackQuery().getData());
                 //сюда можно дописать логику старта обучения
-
                 break;
         }
     }
@@ -92,8 +89,8 @@ public class Registration {
         keyboard.setKeyboard(
                 Collections.singletonList(
                         Arrays.asList(
-                                InlineKeyboardButton.builder().text("Регистрация").callbackData(REGISTRATION_REQUEST).build(),
-                                InlineKeyboardButton.builder().text("Вход").callbackData(ENTER_REQUEST).build()
+                                InlineKeyboardButton.builder().text("Регистрация").callbackData("Registration").build(),
+                                InlineKeyboardButton.builder().text("Вход").callbackData("Enter").build()
                         )
                 )
         );
@@ -104,7 +101,7 @@ public class Registration {
         keyboard.setKeyboard(
                 Collections.singletonList(
                         Collections.singletonList(
-                                InlineKeyboardButton.builder().text("Старт").callbackData(STUDY_START_REQUEST).build()
+                                InlineKeyboardButton.builder().text("Старт").callbackData("Go").build()
                         )
                 )
         );
@@ -124,7 +121,7 @@ public class Registration {
                 sendText(chatId, "Пользователь с таким e-mail не зарегистрирован. Попробуй ще раз или пройдите регистрацию", 1, telegramController);
             }
             else {
-                sendText(chatId, "Вход выполнен. Если готов учиться - жми Старт!", 2, telegramController);
+                sendText(chatId, "Вход выполнен.\nЕсли готов учиться - жми Старт!", 2, telegramController);
             }
         }
         else {
@@ -176,7 +173,7 @@ public class Registration {
         user.setUserSurname(surName);
         tempUser.put(chatId, user);
         putUsersToBase(chatId, tempUser);
-        requestBase.put(chatId, STUDY_START_REQUEST);
+        requestBase.put(chatId, "Go");
         sendText(chatId, "Регистрация завершена. Если готов учиться - жми Старт!", 2, telegramController);
     }
     private void getUsersFromBase() { //получение пользователей из файла-базы во временное хранилище

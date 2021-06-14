@@ -13,15 +13,38 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import telegram.TelegramController;
 public class StudyBlock {
-    public void handleCallbackQuery(Update update, TelegramController telegramController) { //реакция на нажатие кнопок
 
+    public static int currentQuestion;
+    public static String currentBlock;
+
+    private final List<String> blockQuestions = GoogleSheetsApiController.Questions();
+    private final List<String> blockAnswers = GoogleSheetsApiController.Answers();
+
+
+    public void handleCallbackQuery(Update update, TelegramController telegramController) { //реакция на нажатие кнопок
+        long chatId = update.getCallbackQuery().getFrom().getId();
+        String callbackQuery = update.getCallbackQuery().getData();
+
+        switch (callbackQuery) {
+            case "answer":
+                sendText(chatId, blockAnswers.get(currentQuestion), 0, telegramController);
+                break;
+            case "next":
+                if (currentQuestion<blockQuestions.size()-1){
+                currentQuestion++;} else{
+                    String messageText = "Ты закончил этот блок!\nВыбери следующий:";
+                    sendText(chatId, messageText, 2, telegramController);
+                    break;
+                }
+
+                String messageText = blockQuestions.get(currentQuestion);
+                sendText(chatId, messageText, 1, telegramController);
+                break;
+        }
     }
     public void handleTextUpdate(Update update, TelegramController telegramController) { // обработка Go
-
-        System.out.println("handleTextUpdate");
 
         if (update.hasCallbackQuery() && update.getCallbackQuery().getData().equals("Go")) {
             long chatId = update.getCallbackQuery().getFrom().getId();
@@ -29,10 +52,13 @@ public class StudyBlock {
             sendText(chatId, messageText, 2, telegramController);
         }
 
-        if (update.hasMessage() && update.getMessage().getText().equals("Раздел Java")) {
+        if (update.hasMessage() && update.getMessage().getText().equals("⏺ Java")) {
+            currentBlock = "⏺ Java";
+            currentQuestion = 1;
             List<String> blockQuestions = GoogleSheetsApiController.Questions();
             long chatId = update.getMessage().getChatId();
-            String messageText = blockQuestions.get(1);
+            sendText(chatId, "Прекрасный выбор!", 0, telegramController);
+            String messageText = blockQuestions.get(currentQuestion);
             sendText(chatId, messageText, 1, telegramController);
         }
     }
@@ -61,7 +87,7 @@ public class StudyBlock {
         List<KeyboardRow> keyboard = new ArrayList<>();
         for (int i=0; i<blocksNames.size(); i++){
            KeyboardRow keyboardRow = new KeyboardRow();
-           keyboardRow.add("Раздел " + blocksNames.get(i));
+           keyboardRow.add("⏺ " + blocksNames.get(i));
            keyboard.add(keyboardRow);
         }
         replyKeyboardMarkup.setKeyboard(keyboard);
@@ -69,19 +95,18 @@ public class StudyBlock {
     }
 
     private ReplyKeyboard createUnitKeyboard() { //клавиатура для юнитов
-        List<String> blockQuestions = GoogleSheetsApiController.Questions();
-        List<String> blockAnswers = GoogleSheetsApiController.Answers();
         List<String> blockVideos = GoogleSheetsApiController.Videos();
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
         keyboard.setKeyboard(
                 Collections.singletonList(
                         Arrays.asList(
                                 InlineKeyboardButton.builder().text("\uD83D\uDD3D ответ").callbackData("answer").build(),
-                                InlineKeyboardButton.builder().text("\uD83C\uDFA6 видео").url(blockVideos.get(1)).callbackData("video").build(),
+                                InlineKeyboardButton.builder().text("\uD83C\uDFA6 видео").url(blockVideos.get(currentQuestion)).callbackData("video").build(),
                                 InlineKeyboardButton.builder().text("▶️next").callbackData("next").build()
                         )
                 )
         );
         return keyboard;
     }
+
 }
