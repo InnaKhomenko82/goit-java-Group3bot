@@ -14,7 +14,11 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import studyblock.StudyBlock;
 import telegram.TelegramController;
+import telegram.TelegramControllerImpl;
 
 public class Registration {
 
@@ -28,7 +32,7 @@ public class Registration {
     private static final String USER_SURNAME_REQUEST = "Surname";
     private static final String STUDY_START_REQUEST = "Go";
 
-    public void handleTextUpdate(Update update, TelegramController telegramController) { //обработка "/start" и текстового сообщения от пользователя при наличии запроса от бота
+    public void handleTextUpdate(Update update, TelegramControllerImpl telegramController) { //обработка "/start" и текстового сообщения от пользователя при наличии запроса от бота
         long chatId = update.getMessage().getChatId();
         if (update.getMessage().getText().equals("/start")) {
             startMessage(update, telegramController);
@@ -54,22 +58,63 @@ public class Registration {
             }
         }
     }
-    public void handleCallbackQuery(Update update, TelegramController telegramController) { //реакции на колбеки по кнопкам
+    public void handleCallbackQuery(Update update, TelegramControllerImpl telegramController) { //реакции на колбеки по кнопкам
         long chatId = update.getCallbackQuery().getFrom().getId();
         String callbackQuery = update.getCallbackQuery().getData();
 
         switch (callbackQuery) {
             case "Registration":
                 requestBase.put(chatId, "Registration");
+
+                InputStream in = StudyBlock.class.getResourceAsStream("/sticker3.webp");
+
+                SendSticker sticker = new SendSticker();
+                sticker.setChatId(String.valueOf(chatId));
+                InputFile stickerFile = new InputFile(in,"sticker3.webp");
+                sticker.setSticker(stickerFile);
+
+                try {
+                    telegramController.execute(sticker);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+
                 sendText(chatId, "Регистрирую новичка))\nУкажи e-mail, по которому я смогу узнавать тебя", 0, telegramController);
                 break;
             case "Enter":
                 requestBase.put(chatId, "Enter");
+
+                InputStream in2 = StudyBlock.class.getResourceAsStream("/sticker3.webp");
+
+                SendSticker sticker2 = new SendSticker();
+                sticker2.setChatId(String.valueOf(chatId));
+                InputFile stickerFile2 = new InputFile(in2,"sticker3.webp");
+                sticker2.setSticker(stickerFile2);
+
+                try {
+                    telegramController.execute(sticker2);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+
                 sendText(chatId, "Введи адрес электронной почты", 0, telegramController);
                 break;
             case "Go":
                 sendText(chatId, "Гоу учиться! Я создал!", 0, telegramController);
-                //System.out.println(update.getCallbackQuery().getData());
+
+                InputStream in3 = StudyBlock.class.getResourceAsStream("/sticker5.webp");
+
+                SendSticker sticker3 = new SendSticker();
+                sticker3.setChatId(String.valueOf(chatId));
+                InputFile stickerFile3 = new InputFile(in3,"sticker5.webp");
+                sticker3.setSticker(stickerFile3);
+
+                try {
+                    telegramController.execute(sticker3);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+
                 //сюда можно дописать логику старта обучения
                 break;
         }
@@ -111,17 +156,21 @@ public class Registration {
         );
         return keyboard;
     }
-    private void startMessage(Update update, TelegramController telegramController) { //ответ на первичный старт
+    private void startMessage(Update update, TelegramControllerImpl telegramController) { //ответ на первичный старт
         long chatId = update.getMessage().getChatId();
 
-        /*SendSticker sticker = new SendSticker();
+        InputStream in = StudyBlock.class.getResourceAsStream("/sticker2.webp");
+
+        SendSticker sticker = new SendSticker();
         sticker.setChatId(String.valueOf(chatId));
-        InputFile stickerFile = new InputFile("sticker.webp");
+        InputFile stickerFile = new InputFile(in,"sticker2.webp");
         sticker.setSticker(stickerFile);
 
-        sticker.sen
-
-         */
+        try {
+            telegramController.execute(sticker);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
 
         String messageText = "Если ты здесь впервые - нажимай Регистрация.\n" +
                 "Если ты уже тёртый калач - продолжаем. Жми Вход!";
@@ -142,12 +191,26 @@ public class Registration {
             sendText(chatId, "Адрес электронной почты указан неверно. Попробуй еще раз", 1, telegramController);
         }
     }
-    private void emailRegistrar(Update update, TelegramController telegramControoler) { //регистрация e-mail
+    private void emailRegistrar(Update update, TelegramControllerImpl telegramController) { //регистрация e-mail
         long chatId = update.getMessage().getChatId();
         String email = update.getMessage().getText().trim();
         if (isEmailValid(email)) {
             if (!isNoUserCoincidence(email)) {
-                sendText(chatId, "Пользователь с таким e-mail уже зарегистрирован. Попробуй выполнить Вход", 1, telegramControoler);
+
+                InputStream in = StudyBlock.class.getResourceAsStream("/sticker4.webp");
+
+                SendSticker sticker = new SendSticker();
+                sticker.setChatId(String.valueOf(chatId));
+                InputFile stickerFile = new InputFile(in,"sticker4.webp");
+                sticker.setSticker(stickerFile);
+
+                try {
+                    telegramController.execute(sticker);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+
+                sendText(chatId, "Пользователь с таким e-mail уже зарегистрирован. Попробуй выполнить Вход", 1, telegramController);
             }
             else {
                 User user = new User();
@@ -157,11 +220,11 @@ public class Registration {
                 user.setCurrentBlock("");
                 tempUser.put(chatId, user);
                 requestBase.put(chatId, GROUP_NAME_REQUEST);
-                sendText(chatId, "Укажи название своей группы", 0, telegramControoler);
+                sendText(chatId, "Укажи название своей группы", 0, telegramController);
             }
         }
         else {
-            sendText(chatId, "Адрес электронной почты указан неверно. Попробуй еще раз.", 1, telegramControoler);
+            sendText(chatId, "Адрес электронной почты указан неверно. Попробуй еще раз.", 1, telegramController);
         }
     }
     private void groupRegistrar(Update update, TelegramController telegramController) { //регистрация имени группы

@@ -1,18 +1,13 @@
 package studyblock;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
-import com.vdurmont.emoji.EmojiParser;
 import googleSheets.GoogleSheetsApiController;
 import lombok.SneakyThrows;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendSticker;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
@@ -24,9 +19,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import registration.User;
 import registration.UserStudyStatus;
 import telegram.TelegramController;
+import telegram.TelegramControllerImpl;
+
 public class StudyBlock {
 
     public static int currentQuestion;
@@ -38,7 +36,7 @@ public class StudyBlock {
     private static ArrayList<User> tempUserBase = new ArrayList<>();
     private static final String FILE_NAME = "UserBase/user.json";
 
-    public void handleCallbackQuery(Update update, TelegramController telegramController) { //реакция на нажатие кнопок
+    public void handleCallbackQuery(Update update, TelegramControllerImpl telegramController) { //реакция на нажатие кнопок
         long chatId = update.getCallbackQuery().getFrom().getId();
         String callbackQuery = update.getCallbackQuery().getData();
 
@@ -51,6 +49,20 @@ public class StudyBlock {
                 currentQuestion++;
                     UserStudyStatus.changeUserStudyStatus(chatId, currentQuestion, currentBlock);
                 } else{
+
+                    InputStream in3 = StudyBlock.class.getResourceAsStream("/sticker6.webp");
+
+                    SendSticker sticker3 = new SendSticker();
+                    sticker3.setChatId(String.valueOf(chatId));
+                    InputFile stickerFile3 = new InputFile(in3,"sticker6.webp");
+                    sticker3.setSticker(stickerFile3);
+
+                    try {
+                        telegramController.execute(sticker3);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+
                     String messageText = "Ты закончил этот блок!\nВыбери следующий:";
                     sendText(chatId, messageText, 2, telegramController);
                     break;
@@ -61,7 +73,7 @@ public class StudyBlock {
                 break;
         }
     }
-    public void handleTextUpdate(Update update, TelegramController telegramController) { // обработка Go
+    public void handleTextUpdate(Update update, TelegramControllerImpl telegramController) { // обработка Go
 
         if (update.hasCallbackQuery() && update.getCallbackQuery().getData().equals("Go")) {
             if (tempUserBase.isEmpty()) {
@@ -102,13 +114,20 @@ public class StudyBlock {
             List<String> blockQuestions = GoogleSheetsApiController.Questions();
             long chatId = update.getMessage().getChatId();
 
+            InputStream in = StudyBlock.class.getResourceAsStream("/sticker.webp");
+
             SendSticker sticker = new SendSticker();
             sticker.setChatId(String.valueOf(chatId));
-            InputFile stickerFile = new InputFile("sticker1.webp");
+            InputFile stickerFile = new InputFile(in,"sticker1.webp");
             sticker.setSticker(stickerFile);
 
+            try {
+                telegramController.execute(sticker);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
 
-            sendText(chatId, sticker + "Прекрасный выбор!", 0, telegramController);
+            sendText(chatId, "Прекрасный выбор!", 0, telegramController);
             String messageText = blockQuestions.get(currentQuestion);
             sendText(chatId, messageText, 1, telegramController);
         }
@@ -141,6 +160,11 @@ public class StudyBlock {
            keyboardRow.add("⏺ " + blocksNames.get(i));
            keyboard.add(keyboardRow);
         }
+
+        KeyboardRow keyboardRow = new KeyboardRow();
+        keyboardRow.add("/settings");
+        keyboard.add(keyboardRow);
+
         replyKeyboardMarkup.setKeyboard(keyboard);
         return replyKeyboardMarkup;
     }

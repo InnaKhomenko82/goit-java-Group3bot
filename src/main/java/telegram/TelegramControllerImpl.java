@@ -33,10 +33,6 @@ public abstract class TelegramControllerImpl extends TelegramLongPollingBot impl
     @Override
     public void onUpdateReceived(Update update) {
 
-        if (update.hasMessage()) { //notneed
-            System.out.println(update.getMessage());
-        }
-
         if (update.hasMessage() &&update.getMessage().hasText() && update.getMessage().getText().startsWith("/settings")) {
             settings.handleTextUpdate(update, this);
         }
