@@ -6,9 +6,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
+import com.vdurmont.emoji.EmojiParser;
 import googleSheets.GoogleSheetsApiController;
 import lombok.SneakyThrows;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendSticker;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
@@ -97,7 +101,14 @@ public class StudyBlock {
             UserStudyStatus.changeUserStudyStatus(update.getMessage().getChatId(), currentQuestion, currentBlock);
             List<String> blockQuestions = GoogleSheetsApiController.Questions();
             long chatId = update.getMessage().getChatId();
-            sendText(chatId, "Прекрасный выбор!", 0, telegramController);
+
+            SendSticker sticker = new SendSticker();
+            sticker.setChatId(String.valueOf(chatId));
+            InputFile stickerFile = new InputFile("sticker1.webp");
+            sticker.setSticker(stickerFile);
+
+
+            sendText(chatId, sticker + "Прекрасный выбор!", 0, telegramController);
             String messageText = blockQuestions.get(currentQuestion);
             sendText(chatId, messageText, 1, telegramController);
         }

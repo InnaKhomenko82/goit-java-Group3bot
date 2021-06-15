@@ -4,6 +4,9 @@ import com.google.gson.GsonBuilder;
 import lombok.SneakyThrows;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendSticker;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
@@ -83,6 +86,7 @@ public class Registration {
                 sendMessageRequest.setReplyMarkup(createStartKeyboard());
         }
         telegramController.sendMethod(sendMessageRequest);
+
     }
     private ReplyKeyboard createRegistrationKeyboard() { //клавиатура для регистрации
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
@@ -109,6 +113,16 @@ public class Registration {
     }
     private void startMessage(Update update, TelegramController telegramController) { //ответ на первичный старт
         long chatId = update.getMessage().getChatId();
+
+        /*SendSticker sticker = new SendSticker();
+        sticker.setChatId(String.valueOf(chatId));
+        InputFile stickerFile = new InputFile("sticker.webp");
+        sticker.setSticker(stickerFile);
+
+        sticker.sen
+
+         */
+
         String messageText = "Если ты здесь впервые - нажимай Регистрация.\n" +
                 "Если ты уже тёртый калач - продолжаем. Жми Вход!";
         sendText(chatId, messageText,1,telegramController);

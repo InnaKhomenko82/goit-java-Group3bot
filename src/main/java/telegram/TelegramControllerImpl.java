@@ -33,21 +33,27 @@ public abstract class TelegramControllerImpl extends TelegramLongPollingBot impl
     @Override
     public void onUpdateReceived(Update update) {
 
-        if (update.hasMessage() && update.getMessage().getText().startsWith("/settings")) {
+        if (update.hasMessage()) { //notneed
+            System.out.println(update.getMessage());
+        }
+
+        if (update.hasMessage() &&update.getMessage().hasText() && update.getMessage().getText().startsWith("/settings")) {
             settings.handleTextUpdate(update, this);
         }
 
-        if (update.hasMessage() && update.getMessage().getText().startsWith("/start")) {
+        if (update.hasMessage() &&update.getMessage().hasText() && update.getMessage().getText().startsWith("/start")) {
             registration.handleTextUpdate(update, this);
         }
-        else if (update.hasMessage() && update.getMessage().hasText() && !update.getMessage().getText().startsWith("⏺ ")) {
+        else if (update.hasMessage() && update.getMessage().hasText() && !update.getMessage().getText().startsWith("⏺ ")&& !update.getMessage().getText().startsWith("\uD83D") && !update.getMessage().getText().startsWith("/settings")) {
+
+            System.out.println(update.getMessage().getText());
             registration.handleTextUpdate(update, this);
         }
         if (update.hasCallbackQuery() && !update.getCallbackQuery().getData().startsWith("answer")) {
             registration.handleCallbackQuery(update, this);
         }
 
-        if (update.hasMessage() && update.getMessage().getText().equals("⏺ Java")) {
+        if (update.hasMessage() &&update.getMessage().hasText() && update.getMessage().getText().equals("⏺ Java")) {
             studyBlock.handleTextUpdate(update, this);
         }
 
@@ -61,6 +67,10 @@ public abstract class TelegramControllerImpl extends TelegramLongPollingBot impl
 
         if (update.hasCallbackQuery()&& update.getCallbackQuery().getData().startsWith("next")) {
             studyBlock.handleCallbackQuery(update, this);
+        }
+
+        if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().startsWith("\uD83D")) {
+            settings.handleCallbackQuery(update, this);
         }
     }
 }

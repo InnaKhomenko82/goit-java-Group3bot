@@ -23,8 +23,7 @@ import java.security.GeneralSecurityException;
 import java.util.*;
 
 public class GoogleSheetsApiController {
-        private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
-        private static final String PROPERTIES_FILE_PATH = "/application.properties";
+
         private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
         private static Properties appProp;
 

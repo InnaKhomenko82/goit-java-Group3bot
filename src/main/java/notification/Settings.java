@@ -15,7 +15,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 public class Settings {
+
+    public void handleCallbackQuery(Update update, TelegramController telegramController){
+        long chatId = update.getMessage().getFrom().getId();
+        String notificationTime = update.getMessage().getText().substring(3);
+        System.out.println("установлен таймер " + notificationTime);
+        sendText(chatId,"Установлен таймер: "+ notificationTime, 0, telegramController);
+    }
 
     public void handleTextUpdate(Update update, TelegramController telegramController) { // обработка "/settings"
         long chatId = update.getMessage().getChatId();

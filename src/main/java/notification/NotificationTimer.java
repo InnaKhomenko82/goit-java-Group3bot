@@ -1,6 +1,5 @@
-/*package notification;
-
-import googleSheets.GoogleApiSheets;
+package notification;
+import googleSheets.GoogleSheetsApiController;
 import lombok.SneakyThrows;
 
 import java.util.Timer;
@@ -26,8 +25,8 @@ public class NotificationTimer {
 
             @SneakyThrows
             private void updateDataBase() {
-                GoogleApiSheets.mainGoogle();
+                GoogleSheetsApiController.service();
             }
         }, day * MILLISECONDS_TO_DAY);
     }
-}*/
+}
